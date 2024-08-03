@@ -1,0 +1,17 @@
+{
+  "name": "erenshor-tracker-website",
+  "version": "1.0.0",
+  "description": "This Website shows all tracked players and offers the api to do sso",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lenzork",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2"
+  }
+}

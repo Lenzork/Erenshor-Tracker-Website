@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .bg-dark {
+            background-color: #2d3748;
+        }
+        .text-light {
+            color: #e2e8f0;
+        }
+        .accordion-header {
+            cursor: pointer;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .accordion-content.show {
+            max-height: 1000px; /* Set to a high value to accommodate content */
+            opacity: 1;
+        }
+        .hidden-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .hidden-content.show {
+            max-height: 1000px; /* Set to a high value to accommodate content */
+            opacity: 1;
+        }
+        .transition-all {
+            transition: all 0.3s ease-in-out;
+        }
+        .toggle-button {
+            background-color: #4a5568;
+        }
+
+        /* Tooltip container */
+        .tooltip {
+        position: relative;
+        display: inline-block;
+        }
+
+        /* Tooltip text */
+        .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+        font-size: 12px;
+        padding: 12px;
+        
+        /* Position the tooltip text - see examples below! */
+        position: absolute;
+        z-index: 1;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+        .tooltip:hover .tooltiptext {
+        visibility: visible;
+        }
+
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openAccordions = JSON.parse(localStorage.getItem('openAccordions')) || [];
+
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const isOpen = content.classList.toggle('show');
+
+                    const steamName = header.parentElement.getAttribute('data-steam-name');
+                    if (isOpen) {
+                        if (!openAccordions.includes(steamName)) {
+                            openAccordions.push(steamName);
+                        }
+                    } else {
+                        const index = openAccordions.indexOf(steamName);
+                        if (index !== -1) {
+                            openAccordions.splice(index, 1);
+                        }
+                    }
+                    localStorage.setItem('openAccordions', JSON.stringify(openAccordions));
+                });
+
+                const steamName = header.parentElement.getAttribute('data-steam-name');
+                if (openAccordions.includes(steamName)) {
+                    header.nextElementSibling.classList.add('show');
+                }
+            });
+
+            document.querySelectorAll('.toggle-equipment').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    content.classList.toggle('show');
+                    button.classList.toggle('toggle-button');
+                });
+            });
+
+            document.querySelectorAll('.toggle-quests').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    content.classList.toggle('show');
+                    button.classList.toggle('toggle-button');
+                });
+            });
+        });
+
+        function filterPlayers() {
+            const query = document.getElementById('searchQuery').value.toLowerCase();
+            document.querySelectorAll('.player-card').forEach(card => {
+                const playerName = card.getAttribute('data-steam-name').toLowerCase();
+                card.style.display = playerName.includes(query) ? 'block' : 'none';
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-light">
+    <div class="container mx-auto p-4">
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <input type="text" id="searchQuery" onkeyup="filterPlayers()" placeholder="Search by Steam Name..." class="p-2 rounded-md w-full bg-gray-700 text-light">
+        </div>
+
+        <% if (players.length > 0) { %>
+            <% players.forEach(player => { %>
+                <div class="player-card bg-dark rounded-lg shadow-md mb-6 transition-all" data-steam-name="<%= player.steamName %>">
+                    <div class="accordion-header p-6 text-xl font-semibold mb-4 text-light w-full text-center cursor-pointer transition-all">
+                        <%= player.steamName %>
+                    </div>
+                    <div class="accordion-content transition-all">
+                        <ul class="space-y-4">
+                            <% player.characters.forEach(character => { %>
+                                <li class="border border-gray-700 rounded-md p-4 bg-gray-800 transition-all">
+                                    <h2 class="text-2xl font-bold mb-2">
+                                        <%= character.Name %>
+                                        <% character.InstalledMods.forEach(mod => { %>
+                                            <div class="tooltip"><%= mod.Emoji %>
+                                                <span class="tooltiptext"><%= mod.Name %> <br>(Version: <%= mod.Version %>)</span>
+                                            </div> 
+                                        <% }) %>
+                                    </h2>
+                                    <p class="mb-1"><strong>Level:</strong> <%= character.Level %></p>
+                                    <div class="w-full bg-gray-700 rounded-full h-4 mb-4">
+                                        <div class="bg-blue-600 h-4 rounded-full" style="width: <%= Math.round((character.CurrentXP / character.NeededXP) * 100) %>%"></div>
+                                    </div>
+                                    <p class="mb-1"><strong>Class:</strong> <%= character.CharacterClass %></p>
+                                    <p class="mb-1"><strong>Alive:</strong> <%= character.IsAlive ? 'Yes' : 'No' %></p>
+                            
+                                    <div class="mt-4">
+                                        <button class="toggle-equipment bg-gray-700 text-light p-2 rounded mb-2 w-full transition-all">Toggle Equipment</button>
+                                        <div class="equipment-content hidden-content transition-all bg-gray-900 p-4 rounded-md">
+                                            <p class="font-semibold mb-2">Equipped:</p>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <% character.Equipment.forEach(item => { %>
+                                                    <% if (item.ItemName && item.ItemName != "Empty") { %>
+                                                        <div class="border border-gray-700 rounded-md p-2 bg-gray-700 text-center transition-all">
+                                                            <p><a href="https://erenshor.wiki.gg/wiki/<%= item.ItemName %>" class="underline"><%= item.ItemName %></a></p>
+                                                            <p>Level: <%= item.ItemLevel %></p>
+                                                        </div>
+                                                    <% } %>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <div class="mt-4">
+                                        <button class="toggle-quests bg-gray-700 text-light p-2 rounded mb-2 w-full transition-all">Toggle Completed Quests</button>
+                                        <div class="quests-content hidden-content transition-all bg-gray-900 p-4 rounded-md">
+                                            <p class="font-semibold mb-2">Completed Quests:</p>
+                                            <ul class="list-disc list-inside">
+                                                <% character.CompletedQuests.forEach(quest => { %>
+                                                    <li><%= quest.QuestName %></li>
+                                                <% }) %>
+                                            </ul>
+                                        </div>
+                                    </div>
+                            
+                                    <p class="mt-4 text-sm text-gray-400"><strong>Last Updated:</strong> <%= new Date(character.LastUpdated).toLocaleString() %></p>
+                                </li>
+                            <% }) %>
+                        </ul>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <h1 class="text-xl text-center text-gray-400">No Players found!</h1>
+        <% } %>
+    </div>
+</body>
+</html>
