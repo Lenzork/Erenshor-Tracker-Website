@@ -156,9 +156,12 @@
                                         <% }) %>
                                     </h2>
                                     <p class="mb-1"><strong>Level:</strong> <%= character.Level %></p>
-                                    <div class="w-full bg-gray-700 rounded-full h-4 mb-4">
-                                        <div class="bg-blue-600 h-4 rounded-full" style="width: <%= Math.round((character.CurrentXP / character.NeededXP) * 100) %>%"></div>
-                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-4 mb-4 relative">
+                                        <div class="bg-blue-600 h-4 rounded-full" style="width: <%= Math.round((character.CurrentXP / character.NeededXP) * 100) %>%;"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center text-white text-sm">
+                                            <%= Math.round((character.CurrentXP / character.NeededXP) * 100) %>% 
+                                        </div>
+                                    </div>                                    
                                     <p class="mb-1"><strong>Class:</strong> <%= character.CharacterClass %></p>
                                     <p class="mb-1"><strong>Alive:</strong> <%= character.IsAlive ? 'Yes' : 'No' %></p>
                             
